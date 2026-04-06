@@ -1,0 +1,21 @@
+# Multi-Agent AI Academic Assistant - Dependencies
+# Core AI frameworks
+crewai>=0.28.0
+langchain>=0.1.0
+langchain-google-genai>=1.0.0
+langchain-community>=0.0.20
+
+# Google Gemini
+google-generativeai>=0.5.0
+
+# Vector database
+chromadb>=0.4.22
+
+# Web UI
+streamlit>=1.31.0
+
+# Environment & utilities
+python-dotenv>=1.0.1
+pandas>=2.1.4
+pypdf>=4.0.1
+pydantic>=2.0.0

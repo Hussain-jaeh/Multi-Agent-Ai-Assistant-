@@ -1,0 +1,10 @@
+{
+  "student_id": "student_001",
+  "name": "Alex Johnson",
+  "scores": [85, 90, 78, 92, 88],
+  "completion_rate": 85,
+  "strengths": ["Problem solving", "Critical thinking", "Mathematics"],
+  "weaknesses": ["Time management", "Essay writing"],
+  "topics_covered": ["Algebra", "Geometry", "Biology", "Chemistry"],
+  "last_updated": "2024-01-15"
+}
