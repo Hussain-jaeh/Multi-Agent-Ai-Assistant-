@@ -21,7 +21,7 @@ def create_tutor_agent() -> Agent:
     Returns:
         A configured CrewAI Agent ready for task assignment.
     """
-    llm = LLM(model="gemini/gemini-2.0-flash", temperature=0.7)
+    llm = LLM(model="gemini/gemini-2.5-flash", temperature=0.7)
 
     return Agent(
         role="AI Tutor and Learning Guide",

@@ -24,8 +24,22 @@ from agents.support_agent import create_support_agent
 from agents.tutor_agent import create_tutor_agent
 
 
+def _extract_text(result) -> str:
+    """Robustly pull the final text out of a CrewOutput object."""
+    # Try .raw first (most common)
+    if hasattr(result, "raw") and result.raw:
+        return str(result.raw)
+    # Fall back to last task output
+    if hasattr(result, "tasks_output") and result.tasks_output:
+        last = result.tasks_output[-1]
+        if hasattr(last, "raw") and last.raw:
+            return str(last.raw)
+        return str(last)
+    return str(result)
+
+
 def _run_with_retry(crew: Crew, max_retries: int = 3) -> object:
-    """Run a crew, retrying on 429 rate-limit errors with exponential back-off."""
+    """Run a crew, retrying on transient LLM errors with exponential back-off."""
     for attempt in range(max_retries):
         try:
             return crew.kickoff()
@@ -35,9 +49,13 @@ def _run_with_retry(crew: Crew, max_retries: int = 3) -> object:
                 wait = 45 * (attempt + 1)
                 print(f"[Rate limit] Waiting {wait}s before retry {attempt + 1}/{max_retries}…")
                 time.sleep(wait)
+            elif "Invalid response from LLM call" in msg or "None or empty" in msg:
+                wait = 5 * (attempt + 1)
+                print(f"[Empty response] Retrying in {wait}s (attempt {attempt + 1}/{max_retries})…")
+                time.sleep(wait)
             else:
                 raise
-    raise RuntimeError("Max retries exceeded due to rate limiting.")
+    raise RuntimeError("Max retries exceeded. Please try again.")
 
 
 class AcademicAssistantCrew:
@@ -136,7 +154,7 @@ class AcademicAssistantCrew:
         finally:
             sys.stdout = old_stdout
 
-        text = result.raw if hasattr(result, "raw") else str(result)
+        text = _extract_text(result)
         return text, log_buf.getvalue()
 
     # ──────────────────────────────────────────────────────────────────────────
@@ -193,7 +211,7 @@ class AcademicAssistantCrew:
         finally:
             sys.stdout = old_stdout
 
-        text = result.raw if hasattr(result, "raw") else str(result)
+        text = _extract_text(result)
         return text, log_buf.getvalue()
 
     # ──────────────────────────────────────────────────────────────────────────
@@ -273,5 +291,5 @@ class AcademicAssistantCrew:
         finally:
             sys.stdout = old_stdout
 
-        text = result.raw if hasattr(result, "raw") else str(result)
+        text = _extract_text(result)
         return text, log_buf.getvalue()

@@ -35,6 +35,17 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] ul li,
+[data-testid="stMarkdownContainer"] ol li,
+[data-testid="stMarkdownContainer"] td,
+[data-testid="stMarkdownContainer"] th { color: #111827 !important; }
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4 { color: #030712 !important; }
+[data-testid="stMarkdownContainer"] strong { color: #030712 !important; }
 
 /* ── Hide Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
@@ -171,8 +182,8 @@ section[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 16px;
-    padding: 1.75rem 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -2px rgba(0,0,0,.05);
+    padding: 1.25rem 1.5rem 0.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
     margin-top: 1.5rem;
     line-height: 1.7;
     color: #1e293b;
@@ -246,14 +257,16 @@ div.stButton > button:active { transform: translateY(0); }
     border: 1px solid #e2e8f0 !important;
     border-radius: 10px !important;
     font-size: 0.9rem !important;
-    color: #1e293b !important;
+    color: #64748b !important;
+    background: white !important;
     padding: 0.75rem 1rem !important;
     transition: border-color 0.15s !important;
     resize: none !important;
 }
+.stTextArea textarea::placeholder { color: #cbd5e1 !important; }
 .stTextArea textarea:focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,.1) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.1) !important;
 }
 
 /* ── Alerts ── */
@@ -524,7 +537,11 @@ def tutoring_mode(crew, student_id: str):
             _placeholder.empty()
             try:
                 result, log = crew.handle_tutoring_request(student_id, question)
-                st.session_state["tutor_resp"] = {"q": question, "a": result, "log": log}
+                if result and result.strip():
+                    st.session_state["tutor_resp"] = {"q": question, "a": result, "log": log}
+                    st.rerun()
+                else:
+                    st.markdown('<div class="alert alert-warning"><span class="alert-icon">⚠</span>Got an empty response — please try again.</div>', unsafe_allow_html=True)
             except Exception as e:
                 st.markdown(
                     f'<div class="alert alert-warning"><span class="alert-icon">⚠</span>Agent error: {e}</div>',
@@ -537,7 +554,7 @@ def tutoring_mode(crew, student_id: str):
             <div class="response-meta">
                 <span class="response-badge">Tutor Response</span>
                 <span style="font-size:.8rem;color:#64748b;font-style:italic;">"{resp['q']}"</span>
-                <span class="response-model">gemini-2.0-flash</span>
+                <span class="response-model">gemini-2.5-flash</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -599,6 +616,7 @@ def support_mode(crew):
                 result, log = crew.handle_support_request(question)
                 _p.empty()
                 st.session_state["support_resp"] = {"q": question, "a": result, "log": log}
+                st.rerun()
             except Exception as e:
                 _p.empty()
                 st.markdown(f'<div class="alert alert-warning"><span class="alert-icon">⚠</span>{e}</div>', unsafe_allow_html=True)
@@ -609,7 +627,7 @@ def support_mode(crew):
             <div class="response-meta">
                 <span class="response-badge" style="background:#fef3c7;color:#92400e;">Support Response</span>
                 <span style="font-size:.8rem;color:#64748b;font-style:italic;">"{resp['q']}"</span>
-                <span class="response-model">gemini-2.0-flash</span>
+                <span class="response-model">gemini-2.5-flash</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -745,6 +763,7 @@ def progress_mode(crew, student_id: str):
                 bar.progress(100)
                 bar.empty(); status.empty()
                 st.session_state["progress_resp"] = {"result": result, "log": log, "sid": student_id}
+                st.rerun()
             except Exception as e:
                 bar.empty(); status.empty()
                 st.markdown(f'<div class="alert alert-warning"><span class="alert-icon">⚠</span>{e}</div>', unsafe_allow_html=True)
@@ -755,7 +774,7 @@ def progress_mode(crew, student_id: str):
             <div class="response-meta">
                 <span class="response-badge" style="background:#f0fdf4;color:#166534;">AI Progress Report</span>
                 <span style="font-size:.78rem;color:#94a3b8;">{resp['sid']}</span>
-                <span class="response-model">gemini-2.0-flash</span>
+                <span class="response-model">gemini-2.5-flash</span>
             </div>
         </div>
         """, unsafe_allow_html=True)

@@ -22,7 +22,7 @@ def create_analytics_agent() -> Agent:
         A configured CrewAI Agent ready for task assignment.
     """
     llm = LLM(
-        model="gemini/gemini-2.0-flash",
+        model="gemini/gemini-2.5-flash",
         temperature=0.3,  # Lower temperature = more analytical, less creative
     )
 
